@@ -42,17 +42,17 @@ Smart receipt tracking for freelancers and small business owners. Snap a photo, 
 
 ### 1. Clone and install
 
-\`\`\`bash
-git clone https://github.com/YOUR_USERNAME/receipt-lens.git
+```bash
+git clone [https://github.com/YOUR_USERNAME/receipt-lens.git](https://github.com/GurdarshanSingh78/receipt-lens)
 cd receipt-lens
 npm install
-\`\`\`
+```
 
 ### 2. Set up Supabase
 
 Create the `receipts` table:
 
-\`\`\`sql
+```sql
 create table receipts (
   id uuid default gen_random_uuid() primary key,
   user_id text not null,
@@ -67,7 +67,7 @@ create table receipts (
 create index receipts_user_id_idx on receipts (user_id);
 
 alter table receipts enable row level security;
-\`\`\`
+```
 
 > ⚠️ **Important — Clerk + Supabase RLS**
 > Supabase's `auth.uid()` only resolves when you're using **Supabase Auth**. Since this project uses **Clerk**, `auth.uid()` will always be `null` — a policy like `using (auth.uid()::text = user_id)` will silently deny everyone (or, if you're calling Supabase with the service role key, RLS is bypassed entirely and the policy does nothing either way). Pick one approach:
@@ -75,21 +75,21 @@ alter table receipts enable row level security;
 > **Option A — Simplest (recommended for solo projects):** Skip Supabase RLS. Keep the table `service_role`-only, do all reads/writes from Next.js **server actions or route handlers**, and manually filter every query by the Clerk `userId` from `auth()` server-side. Secure as long as no client code touches Supabase directly with the anon key.
 >
 > **Option B — True RLS with Clerk:** Set up Supabase's [third-party auth integration for Clerk](https://supabase.com/docs/guides/auth/third-party/clerk) so Supabase can verify Clerk's JWT natively:
-> \`\`\`sql
+> ```sql
 > create policy "Users can only see their own receipts"
 >   on receipts for all
 >   using ((select auth.jwt()->>'sub') = user_id);
-> \`\`\`
+> ```
 > The example code in this repo assumes **Option A** — every query is scoped server-side by Clerk's `userId`.
 
 Create a **private** storage bucket named `receipts` (do NOT make it public):
 
-\`\`\`sql
+```sql
 create policy "Service role full access"
   on storage.objects for all
   to service_role
   using (bucket_id = 'receipts');
-\`\`\`
+```
 
 Serve images via short-lived **signed URLs** (`createSignedUrl`) generated server-side instead of public URLs — this keeps receipt photos private even if a URL leaks.
 
@@ -97,7 +97,7 @@ Serve images via short-lived **signed URLs** (`createSignedUrl`) generated serve
 
 Create `.env.local` (never commit this — it's already in `.gitignore`):
 
-\`\`\`bash
+```bash
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
@@ -109,30 +109,30 @@ SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key   # server-only, never expose to the client
 
 MISTRAL_API_KEY=your-mistral-key
-\`\`\`
+```
 
 > Note: `SUPABASE_ANON_KEY` is intentionally omitted — under Option A, all Supabase calls happen server-side with the service role key, so the client never talks to Supabase directly.
 
 ### 4. Run locally
 
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 
 Open [http://localhost:3000](http://localhost:3000).
 
 ### 5. Deploy to Vercel
 
-\`\`\`bash
+```bash
 npm install -g vercel
 vercel
-\`\`\`
+```
 
 Add all environment variables under **Project Settings → Environment Variables**, then redeploy.
 
 ## Project Structure
 
-\`\`\`
+```
 receipt-lens/
 ├── app/
 │   ├── (auth)/sign-in, sign-up      # Clerk auth pages
@@ -145,7 +145,7 @@ receipt-lens/
 │   ├── supabase.ts                   # Server-only Supabase client (service role)
 │   └── mistral.ts                    # Mistral API wrapper
 └── types/
-\`\`\`
+```
 
 ## Features
 

@@ -43,7 +43,7 @@ Smart receipt tracking for freelancers and small business owners. Snap a photo, 
 ### 1. Clone and install
 
 ```bash
-git clone [https://github.com/YOUR_USERNAME/receipt-lens.git](https://github.com/GurdarshanSingh78/receipt-lens)
+git clone [[https://github.com/YOUR_USERNAME/receipt-lens.git]
 cd receipt-lens
 npm install
 ```
